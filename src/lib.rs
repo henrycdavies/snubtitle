@@ -1,4 +1,4 @@
-
+mod utils;
 use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 
@@ -7,13 +7,18 @@ use wee_alloc::WeeAlloc;
 static ALLOC: WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn greet(name: &str) {
-    alert(name);
-}
+pub struct VoiceBooster {}
 
 #[wasm_bindgen]
-extern {
-    pub fn alert(s: &str);
-}
+impl VoiceBooster {
+  pub fn new() -> VoiceBooster {
+    utils::set_panic_hook();
 
-// wasm-pack build --target web
+    VoiceBooster {}
+  }
+
+  
+  pub fn boost_voice(&mut self, audio_samples: Vec<f64>) -> Vec<f64> {
+    audio_samples
+  }
+}
