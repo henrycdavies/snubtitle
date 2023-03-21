@@ -29,6 +29,7 @@ function App() {
       const testArr = [100.0,2000.0,30000.0,4000.0,500.0,60.0,7.0];
       const rr = new Float64Array(testArr);
       const outputs = booster.boost_voice(rr);
+      console.log(outputs);
       setBoostingIsActive(true);
     } else {
       setBoostingIsActive(false);
