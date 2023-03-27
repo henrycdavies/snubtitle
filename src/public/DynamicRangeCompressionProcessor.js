@@ -37,6 +37,9 @@ class DynamicRangeCompressionProcessor extends AudioWorkletProcessor {
         // TODO: (Check browser audio, we may have 2 channels)
         const inSamples = inChannels[0];
 
+        const newSampleCount = inSamples.length;
+        const existingSampleCount = this.samples.length - newSampleCount;
+
         const requiresMoreSamplesBeforeAnalysis = (this.samples.length < this.sampleSize) && (this.sampleSize - this.samples.length - inSamples > 0);
 
 
@@ -44,9 +47,24 @@ class DynamicRangeCompressionProcessor extends AudioWorkletProcessor {
             this.samples = [...this.samples, ...inSamples];
         } else {
             // Process
+            for (let i = 0; i < newSampleCount; i++) {
+                this.samples[i] = this.samples[i + newSampleCount];
+            }
+            // Add the new samples onto the end, into the 128-wide slot vacated by
+            // the previous copy.
+            for (let i = 0; i < newSampleCount; i++) {
+                this.samples[existingSampleCount + i] = inSamples[i];
+            }
+            this.totalSamples += newSampleCount;
         }
 
+        if (this.totalSamples >= this.sampleSize && this.booster) {
+            const boosted = this.booster.boost_voice(this.samples);
 
+            if (boosted.length) {
+                this.port.postMessage({ type: 'boosted', boosted });
+            }
+        }
 
         // Continue processing
         return true;
